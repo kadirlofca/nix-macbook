@@ -4,7 +4,7 @@
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
 
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   system.defaults = {
     dock = {
@@ -94,7 +94,6 @@
 
   imports = [ ./brew.nix ];
 
-  services.nix-daemon.enable = true;
   nix.package = pkgs.nix;
   nix.settings.experimental-features = "nix-command flakes";
 
