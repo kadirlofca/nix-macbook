@@ -55,7 +55,7 @@
       GloballyEnabled = false;
       EnableStandardClickToShowDesktop = false;
       EnableTilingByEdgeDrag = true;
-      EnableTilingWindowMargins = false;
+      EnableTiledWindowMargins = false;
     };
 
     trackpad = {
