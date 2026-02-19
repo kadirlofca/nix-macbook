@@ -5,49 +5,67 @@ FLAKE_REPO="https://github.com/kadirlofca/nix-macbook.git"
 FLAKE_DIR="$HOME/nix"
 CONFIG_NAME="kadir-macbook"
 
+echo "▶ Starting bootstrap..."
+
+########################################
+# 1️⃣ Install Nix (Determinate Installer)
+########################################
+
 if ! command -v nix >/dev/null 2>&1; then
-    echo "Cleaning up existing Nix artifacts..."
-    sudo launchctl bootout system/org.nixos.darwin-store 2>/dev/null || true
+    echo "▶ Cleaning up old Nix artifacts (if any)..."
+
     sudo launchctl bootout system/org.nixos.nix-daemon 2>/dev/null || true
     sudo diskutil apfs deleteVolume "Nix Store" 2>/dev/null || true
 
-    echo "Cleaning up any old Nix Keychain entries..."
-    while sudo security delete-generic-password -a "Nix Store" -s "Nix Store" -D "Encrypted volume password" > /dev/null 2>&1; do
-        :
-    done
+    echo "▶ Installing Nix (Determinate Systems)..."
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix \
+        | sh -s -- install --no-confirm
 
-    echo "Installing Nix using Determinate Systems installer..."
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
-
+    # Load nix into current shell
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
     fi
 fi
 
-if [ -f /etc/zshrc ] && ! grep -q "nix-darwin" /etc/zshrc; then
-    echo "Backing up existing /etc/zshrc to /etc/zshrc.bak to avoid conflicts..."
-    sudo mv /etc/zshrc /etc/zshrc.bak
-fi
+########################################
+# 2️⃣ Enable flakes explicitly
+########################################
 
 export NIX_CONFIG="experimental-features = nix-command flakes"
 
+########################################
+# 3️⃣ Clone or update flake repo
+########################################
+
 if [ ! -d "$FLAKE_DIR" ]; then
+    echo "▶ Cloning configuration..."
     git clone "$FLAKE_REPO" "$FLAKE_DIR"
 else
-    cd "$FLAKE_DIR" && git pull
+    echo "▶ Updating configuration..."
+    git -C "$FLAKE_DIR" pull
 fi
 
-if command -v darwin-rebuild >/dev/null 2>&1; then
-    sudo darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
+########################################
+# 4️⃣ Install nix-darwin (first time)
+########################################
+
+if ! command -v darwin-rebuild >/dev/null 2>&1; then
+    echo "▶ Installing nix-darwin..."
+
+    nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 else
-    sudo nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME"
+    echo "▶ Rebuilding system..."
+    darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 fi
 
+########################################
+# 5️⃣ Done
+########################################
+
 echo ""
-echo "✅ Your Macbook is ready."
+echo "✅ Mac setup complete."
 echo ""
-echo "⚠️  POST-INSTALL REMINDERS:"
-echo "1. Restart your Terminal to ensure all Nix paths and Zsh settings are loaded."
-echo "2. Sign in to the Mac App Store manually so that 'mas' can install/update Xcode."
-echo "3. If Touch ID for sudo doesn't work immediately, try 'sudo -k' or restart your machine."
-echo "4. You can update your system anytime by running the 'update' command."
+echo "Post-install notes:"
+echo "• Restart Terminal."
+echo "• Sign into the App Store for mas/Xcode."
+echo "• If Touch ID sudo needs refresh: sudo -k"
