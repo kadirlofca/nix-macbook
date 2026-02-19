@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  system.primaryUser = "your-username";
+
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
 
