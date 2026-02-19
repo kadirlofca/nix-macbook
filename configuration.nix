@@ -63,7 +63,7 @@
       Dragging = false;
       TrackpadThreeFingerDrag = false;
       TrackpadRightClick = true;
-      TrackpadThreeFingerTapGesture = false;
+      TrackpadThreeFingerTapGesture = 0;
     };
 
     SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
