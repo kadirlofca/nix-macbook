@@ -4,7 +4,7 @@
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
 
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   system.defaults = {
     dock = {
@@ -74,11 +74,6 @@
     };
   };
 
-  system.activationScripts.postUserActivation.text = ''
-    killall Dock
-    osascript -e 'tell application "Finder" to set desktop picture to POSIX file "${./wallpaper.jpg}"'
-  '';
-
   environment.systemPackages = [
     pkgs.git
     pkgs.discord
@@ -95,7 +90,6 @@
   nixpkgs.config.allowUnsupportedSystem = true;
   nixpkgs.config.allowUnfree = true;
 
-  services.nix-daemon.enable = true;
   nix.package = pkgs.nix;
   nix.settings.experimental-features = "nix-command flakes";
 
