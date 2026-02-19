@@ -4,6 +4,8 @@
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
 
+  system.primaryUser = "kadirlofca";
+
   security.pam.services.sudo_local.touchIdAuth = true;
 
   system.defaults = {
@@ -75,9 +77,13 @@
     };
   };
 
-  system.activationScripts.postUserActivation.text = ''
+  system.activationScripts.postActivation.text = ''
+    # Set the wallpaper
+    # We must use sudo -u to run this as the primary user because activation runs as root
+    sudo -u kadirlofca /usr/bin/osascript -e 'tell application "Finder" to set desktop picture to POSIX file "${./wallpaper.jpg}"'
+
+    # Restart the Dock to apply changes
     killall Dock
-    osascript -e 'tell application "Finder" to set desktop picture to POSIX file "${./wallpaper.jpg}"'
   '';
 
   environment.systemPackages = [
