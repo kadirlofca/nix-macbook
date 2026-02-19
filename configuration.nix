@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 {
-  system.primaryUser = "your-username";
+  system.primaryUser = "kadirlofca";
 
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
@@ -49,7 +49,6 @@
       KeyRepeat = 2;
       ApplePressAndHoldEnabled = false;
       "com.apple.swipescrolldirection" = true;
-      "com.apple.mouse.tapBehavior" = null;
       _HIHideMenuBar = true;
     };
 
@@ -64,7 +63,6 @@
       Dragging = false;
       TrackpadThreeFingerDrag = false;
       TrackpadRightClick = true;
-      TrackpadThreeFingerTapGesture = null;
     };
 
     SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
@@ -76,11 +74,11 @@
     };
   };
 
-  environment.systemPackages = [
-    pkgs.git
-    pkgs.discord
-    pkgs.zed-editor
-    pkgs.android-studio
+  environment.systemPackages = with pkgs; [
+    git
+    discord
+    zed-editor
+    android-studio
   ];
 
   fonts.packages = with pkgs; [
@@ -89,11 +87,12 @@
 
   imports = [ ./brew.nix ];
 
-  nixpkgs.config.allowUnsupportedSystem = true;
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+  };
 
   nix.package = pkgs.nix;
-  nix.settings.experimental-features = "nix-command flakes";
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   programs.zsh.enable = true;
 

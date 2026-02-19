@@ -5,9 +5,6 @@
   home.homeDirectory = "/Users/kadirlofca";
   home.stateVersion = "24.05";
 
-  nixpkgs.config.allowUnsupportedSystem = true;
-  nixpkgs.config.allowUnfree = true;
-
   programs.home-manager.enable = true;
 
   programs.git = {
@@ -28,6 +25,7 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
+
     shellAliases = {
       ll = "ls -l";
       update = "darwin-rebuild switch --flake ~/nix#kadir-macbook";
