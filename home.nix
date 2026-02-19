@@ -5,17 +5,22 @@
   home.homeDirectory = "/Users/kadirlofca";
   home.stateVersion = "24.05";
 
+  nixpkgs.config.allowUnsupportedSystem = true;
+  nixpkgs.config.allowUnfree = true;
+
   programs.home-manager.enable = true;
 
   programs.git = {
     enable = true;
-    userName = "Kadir Lofca";
-    userEmail = "kadirlofca@outlook.com";
-    ignores = [ ".DS_Store" ".env" ".env.*" ];
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Kadir Lofca";
+        email = "kadirlofca@outlook.com";
+      };
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
     };
+    ignores = [ ".DS_Store" ".env" ".env.*" ];
   };
 
   programs.zsh = {

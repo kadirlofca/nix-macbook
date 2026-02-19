@@ -1,14 +1,10 @@
 { pkgs, ... }:
 
 {
-  nixpkgs.config.allowUnfree = true;
-
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
 
-  system.primaryUser = "kadirlofca";
-
-  security.pam.services.sudo_local.touchIdAuth = true;
+  security.pam.enableSudoTouchIdAuth = true;
 
   system.defaults = {
     dock = {
@@ -51,7 +47,7 @@
       KeyRepeat = 2;
       ApplePressAndHoldEnabled = false;
       "com.apple.swipescrolldirection" = true;
-      "com.apple.mouse.tapBehavior" = null;
+      "com.apple.mouse.tapBehavior" = 0;
       _HIHideMenuBar = true;
     };
 
@@ -59,7 +55,7 @@
       GloballyEnabled = false;
       EnableStandardClickToShowDesktop = false;
       EnableTilingByEdgeDrag = true;
-      EnableTiledWindowMargins = false;
+      EnableTilingWindowMargins = false;
     };
 
     trackpad = {
@@ -67,7 +63,7 @@
       Dragging = false;
       TrackpadThreeFingerDrag = false;
       TrackpadRightClick = true;
-      TrackpadThreeFingerTapGesture = 0;
+      TrackpadThreeFingerTapGesture = false;
     };
 
     SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
@@ -79,20 +75,15 @@
     };
   };
 
-  system.activationScripts.postActivation.text = ''
-    # Set the wallpaper
-    # We must use sudo -u to run this as the primary user because activation runs as root
-    sudo -u kadirlofca /usr/bin/osascript -e 'tell application "Finder" to set desktop picture to POSIX file "${./wallpaper.jpg}"'
-
-    # Restart the Dock to apply changes
+  system.activationScripts.postUserActivation.text = ''
     killall Dock
+    osascript -e 'tell application "Finder" to set desktop picture to POSIX file "${./wallpaper.jpg}"'
   '';
 
   environment.systemPackages = [
     pkgs.git
     pkgs.discord
     pkgs.zed-editor
-    pkgs.ghostty
     pkgs.android-studio
   ];
 
@@ -102,6 +93,10 @@
 
   imports = [ ./brew.nix ];
 
+  nixpkgs.config.allowUnsupportedSystem = true;
+  nixpkgs.config.allowUnfree = true;
+
+  services.nix-daemon.enable = true;
   nix.package = pkgs.nix;
   nix.settings.experimental-features = "nix-command flakes";
 
