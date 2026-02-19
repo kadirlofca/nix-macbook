@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  nixpkgs.config.allowUnfree = true;
+
   networking.hostName = "kadir-macbook";
   networking.computerName = "kadir-macbook";
 
