@@ -21,6 +21,7 @@
       "affinity"
       "davinci-resolve"
       "docker"
+      "android-studio"
     ];
 
     masApps = {

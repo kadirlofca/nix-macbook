@@ -78,7 +78,6 @@
     git
     discord
     zed-editor
-    android-studio
   ];
 
   fonts.packages = with pkgs; [
