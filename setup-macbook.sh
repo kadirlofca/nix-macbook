@@ -62,33 +62,26 @@ else
 fi
 
 ########################################
-# 5️⃣ Determine correct rebuild command
+# 5️⃣ Run user-level home-manager / nix-darwin
 ########################################
-REBUILD_CMD=""
-REQUIRES_ROOT=0
-
+echo "▶ Applying user-level configuration..."
 if command -v darwin-rebuild >/dev/null 2>&1; then
-  REBUILD_CMD="darwin-rebuild switch --flake $FLAKE_DIR#$CONFIG_NAME"
+  darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 else
-  REBUILD_CMD="nix run nix-darwin -- switch --flake $FLAKE_DIR#$CONFIG_NAME"
-fi
-
-# Detect if activation requires root
-if $REBUILD_CMD 2>&1 | grep -q "must now be run as root"; then
-  REQUIRES_ROOT=1
+  nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 fi
 
 ########################################
-# 6️⃣ Execute rebuild properly
+# 6️⃣ Run system activation as root
 ########################################
-echo "▶ Applying system configuration..."
+echo "▶ Running final system-level activation (requires root)..."
+sudo -E darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 
-if [ "$REQUIRES_ROOT" -eq 1 ]; then
-  echo "▶ Activation requires root — escalating safely..."
-  sudo -E $REBUILD_CMD
-else
-  $REBUILD_CMD
-fi
+########################################
+# 6️⃣ Run system activation as root
+########################################
+echo "▶ Running final system-level activation (requires root)..."
+sudo -E darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 
 ########################################
 # 7️⃣ Done
