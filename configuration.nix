@@ -46,8 +46,8 @@
       InitialKeyRepeat = 15;
       KeyRepeat = 2;
       ApplePressAndHoldEnabled = false;
-      "com.apple.swipescrolldirection" = true;
-      "com.apple.mouse.tapBehavior" = 0;
+      com.apple.swipescrolldirection = true;
+      com.apple.mouse.tapBehavior = null;
       _HIHideMenuBar = true;
     };
 
