@@ -9,7 +9,7 @@
     enable = true;
     userName = "Kadir Lofca";
     userEmail = "kadirlofca@outlook.com";
-    ignores = [ ".DS_Store" ".env" ];
+    ignores = [ ".DS_Store" ".env" ".env.*" ];
     extraConfig = {
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
