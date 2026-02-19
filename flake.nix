@@ -17,6 +17,7 @@
         ./configuration.nix
         home-manager.darwinModules.home-manager
         {
+          users.users.kadirlofca.home = "/Users/kadirlofca";
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "backup";
