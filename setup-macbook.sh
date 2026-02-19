@@ -28,4 +28,11 @@ else
     nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME"
 fi
 
+echo ""
 echo "✅ Your Macbook is ready."
+echo ""
+echo "⚠️  POST-INSTALL REMINDERS:"
+echo "1. Restart your Terminal to ensure all Nix paths and Zsh settings are loaded."
+echo "2. Sign in to the Mac App Store manually so that 'mas' can install/update Xcode."
+echo "3. If Touch ID for sudo doesn't work immediately, try 'sudo -k' or restart your machine."
+echo "4. You can update your system anytime by running the 'update' command."
