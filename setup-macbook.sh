@@ -8,7 +8,7 @@ CONFIG_NAME="kadir-macbook"
 echo "▶ Starting macOS bootstrap..."
 
 ########################################
-# 1️⃣ Ensure script is run as normal user
+# 1️⃣ Ensure not running as root
 ########################################
 if [ "$(id -u)" -eq 0 ]; then
   echo "❌ Do NOT run this script as root."
@@ -21,28 +21,11 @@ fi
 if ! command -v nix >/dev/null 2>&1; then
   echo "▶ Installing Nix (Determinate Systems)..."
 
-  # Clean stale keychain entries (safe no-op if none exist)
-  while sudo security delete-generic-password \
-      -a "Nix Store" \
-      -s "Nix Store" \
-      -D "Encrypted volume password" >/dev/null 2>&1; do
-    :
-  done
-
-  # Remove stale APFS volume if it exists
-  if diskutil apfs list | grep -q "Nix Store"; then
-    sudo diskutil apfs deleteVolume "Nix Store" || true
-  fi
-
-  # Install Nix
   curl --proto '=https' --tlsv1.2 -sSf -L \
     https://install.determinate.systems/nix \
     | sh -s -- install --no-confirm
 
-  # Load nix into current shell
-  if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-  fi
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 fi
 
 ########################################
@@ -62,32 +45,21 @@ else
 fi
 
 ########################################
-# 5️⃣ Apply user-level configuration
+# 5️⃣ Run nix-darwin activation (root required)
 ########################################
-echo "▶ Applying user-level configuration..."
-if command -v darwin-rebuild >/dev/null 2>&1; then
-  darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME" || \
-    echo "⚠️ Warning: User-level activation encountered an issue, continuing..."
-else
-  nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME" || \
-    echo "⚠️ Warning: User-level activation encountered an issue, continuing..."
+echo "▶ Activating nix-darwin configuration (requires root)..."
+
+if ! sudo nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME"; then
+  echo "❌ Activation failed."
+  exit 1
 fi
 
 ########################################
-# 6️⃣ Apply system-level configuration (requires root)
-########################################
-echo "▶ Running system-level activation (requires root)..."
-if ! sudo -E darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"; then
-  echo "⚠️ Warning: System-level activation encountered an issue, but continuing..."
-fi
-
-########################################
-# 7️⃣ Done
+# 6️⃣ Done
 ########################################
 echo ""
 echo "✅ macOS setup complete."
 echo ""
 echo "Next steps:"
 echo "• Restart Terminal."
-echo "• Sign into App Store for mas/Xcode."
-echo "• Use 'darwin-rebuild switch --flake ~/nix#$CONFIG_NAME' to update your system."
+echo "• Use 'darwin-rebuild switch --flake ~/nix#$CONFIG_NAME' for future updates."
