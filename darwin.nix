@@ -78,6 +78,7 @@
     git
     discord
     zed-editor
+    devenv
   ];
 
   fonts.packages = with pkgs; [
