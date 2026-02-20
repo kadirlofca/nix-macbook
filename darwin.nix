@@ -80,11 +80,22 @@
     zed-editor
     devenv
     direnv
+    ollama
   ];
 
   fonts.packages = with pkgs; [
     google-fonts
   ];
+
+  launchd.user.agents.ollama = {
+    serviceConfig = {
+      ProgramArguments = [ "${pkgs.ollama}/bin/ollama" "serve" ];
+      KeepAlive = true;
+      RunAtLoad = true;
+      StandardOutPath = "/tmp/ollama.out.log";
+      StandardErrorPath = "/tmp/ollama.err.log";
+    };
+  };
 
   imports = [ ./brew.nix ];
 
