@@ -2,7 +2,7 @@
 set -euo pipefail
 
 FLAKE_REPO="https://github.com/kadirlofca/nix-macbook.git"
-FLAKE_DIR="$HOME/nix"
+FLAKE_DIR="$(pwd)"
 CONFIG_NAME="kadir-macbook"
 
 echo "▶ Starting macOS bootstrap..."

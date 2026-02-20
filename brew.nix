@@ -10,17 +10,14 @@
       cleanup = "zap";
     };
 
-    taps = [
-      "homebrew/services"
-    ];
+    taps = [];
 
     casks = [
       "whatsapp"
       "zen"
       "microsoft-teams"
       "affinity"
-      "davinci-resolve"
-      "docker"
+      "docker-desktop"
       "android-studio"
     ];
 
