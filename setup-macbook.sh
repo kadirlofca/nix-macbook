@@ -8,7 +8,7 @@ CONFIG_NAME="kadir-macbook"
 echo "▶ Starting macOS bootstrap..."
 
 ########################################
-# 1️⃣ Ensure running as normal user
+# 1️⃣ Ensure script is run as normal user
 ########################################
 if [ "$(id -u)" -eq 0 ]; then
   echo "❌ Do NOT run this script as root."
@@ -34,7 +34,7 @@ if ! command -v nix >/dev/null 2>&1; then
     sudo diskutil apfs deleteVolume "Nix Store" || true
   fi
 
-  # Install
+  # Install Nix
   curl --proto '=https' --tlsv1.2 -sSf -L \
     https://install.determinate.systems/nix \
     | sh -s -- install --no-confirm
@@ -62,26 +62,24 @@ else
 fi
 
 ########################################
-# 5️⃣ Run user-level home-manager / nix-darwin
+# 5️⃣ Apply user-level configuration
 ########################################
 echo "▶ Applying user-level configuration..."
 if command -v darwin-rebuild >/dev/null 2>&1; then
-  darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
+  darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME" || \
+    echo "⚠️ Warning: User-level activation encountered an issue, continuing..."
 else
-  nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME"
+  nix run nix-darwin -- switch --flake "$FLAKE_DIR#$CONFIG_NAME" || \
+    echo "⚠️ Warning: User-level activation encountered an issue, continuing..."
 fi
 
 ########################################
-# 6️⃣ Run system activation as root
+# 6️⃣ Apply system-level configuration (requires root)
 ########################################
-echo "▶ Running final system-level activation (requires root)..."
-sudo -E darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
-
-########################################
-# 6️⃣ Run system activation as root
-########################################
-echo "▶ Running final system-level activation (requires root)..."
-sudo -E darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"
+echo "▶ Running system-level activation (requires root)..."
+if ! sudo -E darwin-rebuild switch --flake "$FLAKE_DIR#$CONFIG_NAME"; then
+  echo "⚠️ Warning: System-level activation encountered an issue, but continuing..."
+fi
 
 ########################################
 # 7️⃣ Done
@@ -92,4 +90,4 @@ echo ""
 echo "Next steps:"
 echo "• Restart Terminal."
 echo "• Sign into App Store for mas/Xcode."
-echo "• Use 'darwin-rebuild switch --flake ~/nix#$CONFIG_NAME' to update."
+echo "• Use 'darwin-rebuild switch --flake ~/nix#$CONFIG_NAME' to update your system."
