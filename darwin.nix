@@ -79,6 +79,7 @@
     discord
     zed-editor
     devenv
+    direnv
   ];
 
   fonts.packages = with pkgs; [
@@ -94,6 +95,8 @@
   nix.enable = false;
 
   programs.zsh.enable = true;
+  programs.direnv.enable = true;
+  programs.direnv.nix-direnv.enable = true;
 
   system.stateVersion = 4;
 }
