@@ -22,7 +22,7 @@
       static-only = true;
       launchanim = false;
       mru-spaces = true;
-      autohide-delay = 1.5;
+      autohide-delay = 0.001;
       wvous-tl-corner = 1;
       wvous-tr-corner = 1;
       wvous-bl-corner = 1;
