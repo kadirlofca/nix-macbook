@@ -33,7 +33,7 @@
 
     finder = {
       AppleShowAllExtensions = true;
-      AppleShowAllFiles = true;
+      AppleShowAllFiles = false;
       FXPreferredViewStyle = "Flwv";
       FXEnableExtensionChangeWarning = true;
       ShowPathbar = true;
