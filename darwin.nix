@@ -81,6 +81,7 @@
     devenv
     direnv
     ollama
+    awscli2
   ];
 
   fonts.packages = with pkgs; [
