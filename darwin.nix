@@ -1,114 +1,78 @@
-{ pkgs, ... }:
-
-{
+{ pkgs, ... }: {
+  nixpkgs.hostPlatform = "aarch64-darwin";
   system.primaryUser = "kadirlofca";
+  system.stateVersion = 6;
+
+  # Determinate Nix owns the install, the daemon and /etc/nix settings
+  nix.enable = false;
 
   networking.hostName = "kadir-macbook";
-  networking.computerName = "kadir-macbook";
+  networking.localHostName = "kadir-macbook";
+
+  users.users.kadirlofca = {
+    name = "kadirlofca";
+    home = "/Users/kadirlofca";
+  };
 
   security.pam.services.sudo_local.touchIdAuth = true;
+
+  homebrew = {
+    enable = true;
+    onActivation = {
+      autoUpdate = false;
+      upgrade = false;
+      cleanup = "zap";
+    };
+    brews = [ ];
+    casks = [
+      "zen"
+      "docker-desktop"
+      "affinity"
+      "blender"
+      "davinci-resolve"
+      "discord"
+      "whatsapp"
+      "obsidian"
+    ];
+    masApps = {
+      "Xcode" = 497799835;
+    };
+  };
 
   system.defaults = {
     dock = {
       autohide = true;
+      autohide-delay = 0.001;
       orientation = "right";
-      tilesize = 64;
+      tilesize = 73;
+      largesize = 16;
       magnification = false;
+      mineffect = "genie";
+      minimize-to-application = true;
+      launchanim = false;
+      show-recents = false;
       show-process-indicators = false;
       showhidden = true;
-      minimize-to-application = true;
-      mineffect = "genie";
-      show-recents = false;
       static-only = true;
-      launchanim = false;
       mru-spaces = true;
-      autohide-delay = 0.001;
-      wvous-tl-corner = 1;
-      wvous-tr-corner = 1;
-      wvous-bl-corner = 1;
-      wvous-br-corner = 1;
-      persistent-apps = [];
-      persistent-others = [];
+      expose-group-apps = true;
     };
-
     finder = {
       AppleShowAllExtensions = true;
-      AppleShowAllFiles = false;
-      FXPreferredViewStyle = "Flwv";
-      FXEnableExtensionChangeWarning = true;
+      AppleShowAllFiles = true;
       ShowPathbar = true;
-      ShowStatusBar = false;
-      _FXSortFoldersFirst = true;
-      CreateDesktop = true;
     };
-
     NSGlobalDomain = {
-      AppleInterfaceStyle = "Dark";
-      AppleICUForce24HourTime = false;
-      InitialKeyRepeat = 15;
       KeyRepeat = 2;
+      InitialKeyRepeat = 15;
       ApplePressAndHoldEnabled = false;
-      "com.apple.swipescrolldirection" = true;
-      _HIHideMenuBar = true;
-    };
-
-    WindowManager = {
-      GloballyEnabled = false;
-      EnableStandardClickToShowDesktop = false;
-      EnableTilingByEdgeDrag = true;
-    };
-
-    trackpad = {
-      Clicking = false;
-      Dragging = false;
-      TrackpadThreeFingerDrag = false;
-      TrackpadRightClick = true;
-    };
-
-    SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
-
-    controlcenter = {
-      BatteryShowPercentage = false;
-      AirDrop = false;
-      Bluetooth = false;
     };
   };
 
-  environment.systemPackages = with pkgs; [
-    git
-    discord
-    zed-editor
-    devenv
-    direnv
-    ollama
-    awscli2
-  ];
-
-  fonts.packages = with pkgs; [
-    google-fonts
-  ];
-
-  launchd.user.agents.ollama = {
-    serviceConfig = {
-      ProgramArguments = [ "${pkgs.ollama}/bin/ollama" "serve" ];
-      KeepAlive = true;
-      RunAtLoad = true;
-      StandardOutPath = "/tmp/ollama.out.log";
-      StandardErrorPath = "/tmp/ollama.err.log";
-    };
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    backupFileExtension = "backup";
+    users.kadirlofca = import ./home.nix;
   };
-
-  imports = [ ./brew.nix ];
-
-  nixpkgs.config = {
-    allowUnfree = true;
-  };
-
-  nix.enable = false;
-
-  programs.zsh.enable = true;
-  programs.direnv.enable = true;
-  programs.direnv.nix-direnv.enable = true;
-
-  system.stateVersion = 4;
 }
