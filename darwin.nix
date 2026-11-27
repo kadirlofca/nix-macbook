@@ -25,7 +25,6 @@
     };
     brews = [ ];
     casks = [
-      "zen"
       "docker-desktop"
       "affinity"
       "blender"
@@ -33,10 +32,8 @@
       "discord"
       "whatsapp"
       "obsidian"
+      "fluidvoice" # offline speech-to-text dictation
     ];
-    masApps = {
-      "Xcode" = 497799835;
-    };
   };
 
   system.defaults = {
@@ -57,6 +54,21 @@
       mru-spaces = true;
       expose-group-apps = true;
     };
+    # Menu bar, mirroring this Mac's preferences read on 2026-11-27.
+    menuExtraClock = {
+      IsAnalog = false;
+      ShowDayOfWeek = true;
+      ShowDate = 0; # 0 = when space allows
+      ShowSeconds = false;
+      ShowAMPM = false;
+      FlashDateSeparators = false;
+    };
+    controlcenter = {
+      BatteryShowPercentage = false;
+      Bluetooth = false;
+      AirDrop = false;
+    };
+    CustomUserPreferences."com.apple.Siri".StatusMenuVisible = false;
     finder = {
       AppleShowAllExtensions = true;
       AppleShowAllFiles = true;
@@ -66,6 +78,7 @@
       KeyRepeat = 2;
       InitialKeyRepeat = 15;
       ApplePressAndHoldEnabled = false;
+      _HIHideMenuBar = true; # menu bar auto-hide; also see AutoHideMenuBarOption
     };
   };
 

@@ -11,17 +11,23 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
     homebrew-core = { url = "github:homebrew/homebrew-core"; flake = false; };
     homebrew-cask = { url = "github:homebrew/homebrew-cask"; flake = false; };
   };
 
   outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, nix-homebrew
-                   , homebrew-core, homebrew-cask, ... }: {
+                   , homebrew-core, homebrew-cask, zen-browser, ... }: {
     darwinConfigurations."kadir-macbook" = nix-darwin.lib.darwinSystem {
       modules = [
         ./darwin.nix
         home-manager.darwinModules.home-manager
+        { home-manager.sharedModules = [ zen-browser.homeModules.beta ]; }
         nix-homebrew.darwinModules.nix-homebrew
         ({ config, ... }: {
           nix-homebrew = {
