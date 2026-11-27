@@ -5,7 +5,12 @@
   home.packages = [ ];
 
   # direnv's hooks need home-manager to manage the shell
-  programs.zsh.enable = true;
+  programs.zsh = {
+    enable = true;
+    # Runs the same updater as the daily job (repo checks, flake update, switch),
+    # right now and under the same lock. flake.lock is not committed on purpose.
+    shellAliases.update = "sudo nix-macbook-update --now";
+  };
 
   programs.git = {
     enable = true;
@@ -16,13 +21,15 @@
     ignores = [ ".DS_Store" ];
   };
 
-  # UNVERIFIED: programs.desktoppr is on home-manager master; check it exists in
-  # release-26.05 at the first `darwin-rebuild build`. Uses Apple's built-in black
-  # image because the module has no true solid-color mode.
+  # programs.desktoppr is on home-manager master; its options live under `settings`
+  # (checked in the module source). Uses Apple's built-in black image because the
+  # module has no true solid-color mode.
   programs.desktoppr = {
     enable = true;
-    picture = "/System/Library/Desktop Pictures/Solid Colors/Black.png";
-    scale = "fill";
+    settings = {
+      picture = "/System/Library/Desktop Pictures/Solid Colors/Black.png";
+      scale = "fill";
+    };
   };
 
   # Zen is installed by this module (zen-browser-flake), not by a Homebrew cask.
@@ -70,6 +77,9 @@
         "6f11c932-b992-433e-8c80-56a613cc511e" # Left close button
       ];
 
+      # Zen rewrites containers.json as a real file; force keeps switches from
+      # tripping over it.
+      containersForce = true;
       # Names for ids 1-4 are Firefox's defaults; the profile only stored
       # their icon and colour.
       containers = {
@@ -93,7 +103,7 @@
               green = 54;
               blue = 54;
               algorithm = "floating";
-              type = "explicit-black-white";
+              type = "explicit-lightness";
               lightness = 21;
             }];
             opacity = 0.35;

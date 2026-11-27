@@ -20,21 +20,25 @@ die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 [ "$(id -un)" = "$EXPECTED_USER" ] || die "the account name must be '$EXPECTED_USER' (is '$(id -un)')"
 [ "$(sw_vers -productVersion | cut -d. -f1)" -ge 15 ] || die "macOS 15 or later is required"
 
-say "1/5 Xcode command line tools"
+say "1/4 Xcode command line tools"
 if ! xcode-select -p >/dev/null 2>&1; then
   xcode-select --install || true
-  echo "Finish the installer dialog; waiting..."
-  until xcode-select -p >/dev/null 2>&1; do sleep 5; done
+  echo "Finish the installer dialog; waiting (up to 30 min)..."
+  waited=0
+  until xcode-select -p >/dev/null 2>&1; do
+    [ "$waited" -lt 1800 ] || die "command line tools not installed; install them and re-run"
+    sleep 5; waited=$((waited + 5))
+  done
 fi
 
-say "2/5 Determinate Nix"
+say "2/4 Determinate Nix"
 if [ ! -x "$NIX_BIN/nix" ]; then
   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix \
     | sh -s -- install --no-confirm
 fi
 export PATH="$NIX_BIN:$PATH"
 
-say "3/5 Config repo -> $REPO_DIR"
+say "3/4 Config repo -> $REPO_DIR"
 if [ -d "$REPO_DIR/.git" ]; then
   git -C "$REPO_DIR" pull --ff-only
 else
@@ -42,17 +46,17 @@ else
   git clone "$REPO_URL" "$REPO_DIR"
 fi
 
-say "4/5 Move aside /etc files nix-darwin refuses to overwrite"
-for f in /etc/zshrc /etc/bashrc; do
-  if [ -e "$f" ] && [ ! -L "$f" ] && [ ! -e "$f.before-nix-darwin" ]; then
-    sudo mv "$f" "$f.before-nix-darwin"
-  fi
-done
-
-say "5/5 First switch (nix-darwin + home-manager + Homebrew)"
+# Create flake.lock as the user. If root created it first, the daily updater
+# (which runs `nix flake update` as the user) could not overwrite it.
 cd "$REPO_DIR"
-sudo "$NIX_BIN/nix" run nix-darwin/nix-darwin-26.05#darwin-rebuild -- \
-  switch --flake ".#$HOST"
+nix flake lock
+
+say "4/4 First switch (nix-darwin + home-manager + Homebrew)"
+# nix-darwin moves the stock /etc/zshrc and /etc/bashrc aside itself.
+# path: so the git-ignored flake.lock is the one that gets built.
+sudo "$NIX_BIN/nix" run nix-darwin/master#darwin-rebuild -- \
+  switch --flake "path:$REPO_DIR#$HOST"
+sudo chown "$EXPECTED_USER" "$REPO_DIR/flake.lock" || true
 
 cat <<'EOF'
 
@@ -62,6 +66,6 @@ Still manual:
   - Privacy permissions (e.g. FluidVoice: Microphone + Accessibility)
   - Sign in to Zen, the App Store, iCloud and other accounts
   - Re-enter LeechBlock NG's block lists
-  - Install Xcode from the App Store if you need it
-  - Commit flake.lock if this run created or changed it
+  - Install Xcode from the App Store and DaVinci Resolve from Blackmagic's site
+    if you need them (neither is managed here)
 EOF

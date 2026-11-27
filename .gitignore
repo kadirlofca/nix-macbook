@@ -1,0 +1,3 @@
+# Versions are intentionally not pinned: every `update` and every fresh clone
+# resolves all inputs to the newest commits.
+flake.lock
