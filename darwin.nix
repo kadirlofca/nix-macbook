@@ -120,6 +120,8 @@ in
       "whatsapp"
       "obsidian"
       "fluidvoice" # offline speech-to-text dictation
+      "yubico-authenticator"
+      "claude-code"
     ];
   };
 
@@ -160,13 +162,63 @@ in
       AppleShowAllExtensions = true;
       AppleShowAllFiles = true;
       ShowPathbar = true;
+      ShowStatusBar = false;
+      FXPreferredViewStyle = "Nlsv"; # list view
+      _FXSortFoldersFirst = true;
+      FXEnableExtensionChangeWarning = true;
+      FXRemoveOldTrashItems = true; # empty Trash after 30 days
+      # No drive icons on the desktop.
+      ShowHardDrivesOnDesktop = false;
+      ShowExternalHardDrivesOnDesktop = false;
+      ShowRemovableMediaOnDesktop = false;
+      ShowMountedServersOnDesktop = false;
     };
     NSGlobalDomain = {
       KeyRepeat = 2;
       InitialKeyRepeat = 15;
       ApplePressAndHoldEnabled = false;
       _HIHideMenuBar = true; # menu bar auto-hide; also see AutoHideMenuBarOption
+
+      AppleInterfaceStyle = "Dark";
+      AppleInterfaceStyleSwitchesAutomatically = false;
+      AppleICUForce24HourTime = false; # 12-hour clock
+
+      # Developer style: no automatic text changes.
+      NSAutomaticCapitalizationEnabled = false;
+      NSAutomaticPeriodSubstitutionEnabled = false;
+      NSAutomaticSpellingCorrectionEnabled = false;
+      NSAutomaticQuoteSubstitutionEnabled = false;
+      NSAutomaticDashSubstitutionEnabled = false;
+      NSAutomaticInlinePredictionEnabled = false;
+
+      "com.apple.swipescrolldirection" = true; # natural scrolling
+      "com.apple.trackpad.scaling" = 2.0; # tracking speed
     };
+
+    trackpad = {
+      Clicking = false; # tap to click off
+      TrackpadRightClick = true; # two-finger click
+      TrackpadThreeFingerDrag = false;
+    };
+
+    WindowManager = {
+      GloballyEnabled = false; # Stage Manager off
+      EnableStandardClickToShowDesktop = false;
+      EnableTiledWindowMargins = false;
+      EnableTilingByEdgeDrag = true;
+      AppWindowGroupingBehavior = true;
+    };
+
+    SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
+  };
+
+  networking.applicationFirewall.enable = true;
+
+  # Matches this Mac: display and computer sleep after 1 minute. The 02:00 updater
+  # therefore mostly runs on wake.
+  power.sleep = {
+    computer = 1;
+    display = 1;
   };
 
   # Self-updating: daily at 02:00. If the Mac was asleep, launchd runs it on wake;
@@ -204,6 +256,13 @@ in
       StandardOutPath = "/var/log/nix-gc.log";
       StandardErrorPath = "/var/log/nix-gc.log";
     };
+  };
+
+  # FluidVoice is a login item on this Mac; there is no declarative login-item
+  # option, so a user agent opens it at login. UNTESTED.
+  launchd.user.agents.fluidvoice-login = {
+    command = "/usr/bin/open -a FluidVoice";
+    serviceConfig.RunAtLoad = true;
   };
 
   # Rotate the two logs. UNVERIFIED: newsyslog line format (name mode count size when flags).
