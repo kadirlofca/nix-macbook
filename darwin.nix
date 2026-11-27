@@ -82,6 +82,33 @@
     };
   };
 
+  # Keeps the Nix store from growing. nix-darwin's nix.gc needs nix.enable, which
+  # is off for Determinate, so this runs the commands from a launchd job instead.
+  # Weekly, Sunday 03:00 (runs on wake if the Mac was asleep). Deletes generations
+  # older than 30 days, collects unreferenced store paths, then hard-links
+  # duplicate files. The current generation is never deleted.
+  launchd.daemons.nix-gc = {
+    script = ''
+      /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-older-than 30d
+      /nix/var/nix/profiles/default/bin/nix store optimise
+    '';
+    serviceConfig = {
+      StartCalendarInterval = [{ Weekday = 0; Hour = 3; Minute = 0; }];
+      StandardOutPath = "/var/log/nix-gc.log";
+      StandardErrorPath = "/var/log/nix-gc.log";
+    };
+  };
+
+  # Homebrew's download cache and old versions also grow. Runs as your user.
+  launchd.user.agents.brew-cleanup = {
+    command = "/opt/homebrew/bin/brew cleanup --prune=all";
+    serviceConfig = {
+      StartCalendarInterval = [{ Weekday = 0; Hour = 3; Minute = 30; }];
+      StandardOutPath = "/tmp/brew-cleanup.log";
+      StandardErrorPath = "/tmp/brew-cleanup.log";
+    };
+  };
+
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
